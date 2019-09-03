@@ -148,55 +148,11 @@ to correr-lejos
   rt 180
 end
 
-to-report cerebros-cerca
-  report humanos in-radius rango-vision-zombies
-end
-
-to-report zombies-cerca
-  report zombies in-radius rango-vision-humanos
-end
-
 to perseguir-humanos
   let nearest-brains min-one-of humanos [distance myself]
   face nearest-brains
   if any? other humanos-here
     [convertir]
-end
-
-;_--------------------------------------------------------
-to-report aleatorio-entre [lim-inf lim-sup]
-  report random (lim-sup - lim-inf + 1) + lim-inf
-end
-
-to validar-poblacion
-  if(validar?)[
-    if count(humanos) = 0 and count(zombies) > 0
-    [
-      user-message (word "El mundo fue invadido por zombies.")
-      set validar? false
-    ]
-
-    if count(zombies) = 0 and count(humanos) > 0
-    [
-      user-message (word "Los humanos se salvaron de extinguirse.")
-      set validar? false
-    ]
-
-    if count(zombies) = 0 and count(humanos) = 0
-    [
-      user-message (word "El mundo quedó libre de zombies y humanos.")
-      set validar? false
-    ]
-  ]
-end
-
-to convertir
-  set resistencia resistencia-zombies
-  ask humanos-on patch-here [
-    set breed zombies
-    set color green - 2
-    set resistencia resistencia-zombies
-  ]
 end
 
 to avanzar [velocidad]
@@ -219,12 +175,57 @@ to vagar
   ]
 end
 
+to-report cerebros-cerca
+  report humanos in-radius rango-vision-zombies
+end
+
+to-report zombies-cerca
+  report zombies in-radius rango-vision-humanos
+end
+
+;--------------------------------------------------------
+to convertir
+  set resistencia resistencia-zombies
+  ask humanos-on patch-here [
+    set breed zombies
+    set color green - 2
+    set resistencia resistencia-zombies
+  ]
+end
+
 to girar-derecha ;;Generate a random degree of turn for the wander sub-routine.
   rt random-float 30
 end
 
 to girar-izquierda ;;Generate a random degree of turn for the wander sub-routine.
   lt random-float 30
+end
+
+to-report aleatorio-entre [lim-inf lim-sup]
+  report random (lim-sup - lim-inf + 1) + lim-inf
+end
+
+;--------------------------------------------------------
+to validar-poblacion
+  if(validar?)[
+    if count(humanos) = 0 and count(zombies) > 0
+    [
+      user-message (word "El mundo fue invadido por zombies.")
+      set validar? false
+    ]
+
+    if count(zombies) = 0 and count(humanos) > 0
+    [
+      user-message (word "Los humanos se salvaron de extinguirse.")
+      set validar? false
+    ]
+
+    if count(zombies) = 0 and count(humanos) = 0
+    [
+      user-message (word "El mundo quedó libre de zombies y humanos.")
+      set validar? false
+    ]
+  ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -296,7 +297,7 @@ CHOOSER
 Escenario
 Escenario
 "calles" "parque" "plaza"
-2
+0
 
 SLIDER
 19

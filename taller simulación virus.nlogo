@@ -136,9 +136,8 @@ to mover-agentes
 
   ask zombies [
     if(zombies-mueren? and resistencia <= 0)[ die ]
-    ask patch-here [
-      set densidad-virus (densidad-virus + densidad-maxima-virus)
-    ]
+    ask patch-here
+    [ set densidad-virus (densidad-virus + densidad-maxima-virus) ]
 
     ifelse any? humanos-here
     [ comer-cerebros ]
@@ -158,6 +157,33 @@ to correr-lejos
   rt 180
 end
 
+to perseguir-humanos
+  let nearest-brains min-one-of humanos [distance myself]
+  face nearest-brains
+  if any? other humanos-here
+    [comer-cerebros]
+end
+
+to avanzar [velocidad]
+  ifelse [es-valido?] of patch-ahead 1
+  [
+    if(count(other zombies-on patch-ahead 1) < 2)
+    [ fd velocidad ]
+  ]
+  [ vagar ]
+end
+
+to vagar
+  ifelse random 20 > 15
+  [girar-derecha]
+  [girar-izquierda]
+
+  ask zombies [
+    if any? humanos-here
+    [ comer-cerebros ]
+  ]
+end
+
 to-report cerebros-cerca
   report humanos in-radius rango-vision-zombies
 end
@@ -166,40 +192,7 @@ to-report zombies-cerca
   report zombies in-radius rango-vision-humanos
 end
 
-to perseguir-humanos
-  let nearest-brains min-one-of humanos [distance myself]
-  face nearest-brains
-  if any? other humanos-here
-    [comer-cerebros]
-end
-
 ;_--------------------------------------------------------
-to-report aleatorio-entre [lim-inf lim-sup]
-  report random (lim-sup - lim-inf + 1) + lim-inf
-end
-
-to validar-poblacion
-  if(validar?)[
-    if count(humanos) = 0 and count(zombies) > 0
-    [
-      user-message (word "El mundo fue invadido por zombies.")
-      set validar? false
-    ]
-
-    if count(zombies) = 0 and count(humanos) > 0
-    [
-      user-message (word "Los humanos se salvaron de extinguirse.")
-      set validar? false
-    ]
-
-    if count(zombies) = 0 and count(humanos) = 0
-    [
-      user-message (word "El mundo quedó libre de zombies y humanos.")
-      set validar? false
-    ]
-  ]
-end
-
 to extender-virus
   diffuse densidad-virus (velocidad-difusion-virus / 100)
   ask patches
@@ -227,32 +220,39 @@ to comer-cerebros
   ]
 end
 
-to avanzar [velocidad]
-  ifelse [es-valido?] of patch-ahead 1
-  [
-    if(count(other zombies-on patch-ahead 1) < 2)
-    [ fd velocidad ]
-  ]
-  [ vagar ]
-end
-
-to vagar
-  ifelse random 20 > 15
-  [girar-derecha]
-  [girar-izquierda]
-
-  ask zombies [
-    if any? humanos-here
-    [ comer-cerebros ]
-  ]
-end
-
 to girar-derecha ;;Generate a random degree of turn for the wander sub-routine.
   rt random-float 30
 end
 
 to girar-izquierda ;;Generate a random degree of turn for the wander sub-routine.
   lt random-float 30
+end
+
+to-report aleatorio-entre [lim-inf lim-sup]
+  report random (lim-sup - lim-inf + 1) + lim-inf
+end
+
+;--------------------------------------------------------
+to validar-poblacion
+  if(validar?)[
+    if count(humanos) = 0 and count(zombies) > 0
+    [
+      user-message (word "El mundo fue invadido por zombies.")
+      set validar? false
+    ]
+
+    if count(zombies) = 0 and count(humanos) > 0
+    [
+      user-message (word "Los humanos se salvaron de extinguirse.")
+      set validar? false
+    ]
+
+    if count(zombies) = 0 and count(humanos) = 0
+    [
+      user-message (word "El mundo quedó libre de zombies y humanos.")
+      set validar? false
+    ]
+  ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
